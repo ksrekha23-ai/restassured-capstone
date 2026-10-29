@@ -1,0 +1,10 @@
+target/
+reports/
+*.class
+*.jar
+*.log
+.idea/
+*.iml
+.vscode/
+.DS_Store
+test-output/

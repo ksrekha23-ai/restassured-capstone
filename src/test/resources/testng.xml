@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="REST Assured Capstone Suite" verbose="1">
+
+    <listeners>
+        <listener class-name="com.capstone.listeners.ExtentReportListener"/>
+    </listeners>
+
+    <test name="User API Tests">
+        <classes>
+            <class name="com.capstone.tests.UserApiTest"/>
+        </classes>
+    </test>
+
+    <test name="Post API Tests">
+        <classes>
+            <class name="com.capstone.tests.PostApiTest"/>
+        </classes>
+    </test>
+
+    <test name="Comment API Tests">
+        <classes>
+            <class name="com.capstone.tests.CommentApiTest"/>
+        </classes>
+    </test>
+
+</suite>
