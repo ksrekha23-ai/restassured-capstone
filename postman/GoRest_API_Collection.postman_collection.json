@@ -1,0 +1,721 @@
+{
+	"info": {
+		"name": "GoRest API - Capstone Collection",
+		"description": "Automated API test collection for GoRest API endpoints. Run requests in order using Collection Runner to execute the full CRUD workflow with chained variables.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://gorest.co.in/public/v2"
+		},
+		{
+			"key": "token",
+			"value": "YOUR_GOREST_TOKEN_HERE"
+		},
+		{
+			"key": "userId",
+			"value": ""
+		},
+		{
+			"key": "postId",
+			"value": ""
+		},
+		{
+			"key": "commentId",
+			"value": ""
+		},
+		{
+			"key": "testEmail",
+			"value": ""
+		}
+	],
+	"item": [
+		{
+			"name": "User API",
+			"item": [
+				{
+					"name": "1. Create User",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var randomEmail = 'testuser_' + Date.now() + '@testmail.com';",
+									"pm.collectionVariables.set('testEmail', randomEmail);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201 Created', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Response has user id', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.be.a('number');",
+									"    pm.collectionVariables.set('userId', jsonData.id);",
+									"});",
+									"",
+									"pm.test('Name matches request', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.name).to.eql('Rekha Test User');",
+									"});",
+									"",
+									"pm.test('Email matches request', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.email).to.eql(pm.collectionVariables.get('testEmail'));",
+									"});",
+									"",
+									"pm.test('Gender is female', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.gender).to.eql('female');",
+									"});",
+									"",
+									"pm.test('Status is active', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.status).to.eql('active');",
+									"});",
+									"",
+									"pm.test('Response time is under 3 seconds', function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Rekha Test User\",\n    \"email\": \"{{testEmail}}\",\n    \"gender\": \"female\",\n    \"status\": \"active\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["users"]
+						}
+					}
+				},
+				{
+					"name": "2. Get User by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('User ID matches', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.eql(parseInt(pm.collectionVariables.get('userId')));",
+									"});",
+									"",
+									"pm.test('User name is correct', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.name).to.eql('Rekha Test User');",
+									"});",
+									"",
+									"pm.test('Response time is under 3 seconds', function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["users", "{{userId}}"]
+						}
+					}
+				},
+				{
+					"name": "3. Get All Users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response is an array', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});",
+									"",
+									"pm.test('Array is not empty', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.length).to.be.above(0);",
+									"});",
+									"",
+									"pm.test('Users have required fields', function () {",
+									"    var jsonData = pm.response.json();",
+									"    var user = jsonData[0];",
+									"    pm.expect(user).to.have.property('id');",
+									"    pm.expect(user).to.have.property('name');",
+									"    pm.expect(user).to.have.property('email');",
+									"    pm.expect(user).to.have.property('gender');",
+									"    pm.expect(user).to.have.property('status');",
+									"});",
+									"",
+									"pm.test('Response time is under 3 seconds', function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["users"]
+						}
+					}
+				},
+				{
+					"name": "4. Update User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Name is updated', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.name).to.eql('Rekha Updated User');",
+									"});",
+									"",
+									"pm.test('Status is updated to inactive', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.status).to.eql('inactive');",
+									"});",
+									"",
+									"pm.test('Response time is under 3 seconds', function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Rekha Updated User\",\n    \"status\": \"inactive\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["users", "{{userId}}"]
+						}
+					}
+				},
+				{
+					"name": "5. Create User - Male Active",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var randomEmail = 'male_active_' + Date.now() + '@testmail.com';",
+									"pm.variables.set('dynamicEmail', randomEmail);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201 Created', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Gender is male', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.gender).to.eql('male');",
+									"});",
+									"",
+									"pm.test('Status is active', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.status).to.eql('active');",
+									"});",
+									"",
+									"// Save for cleanup",
+									"var jsonData = pm.response.json();",
+									"pm.environment.set('cleanupUserId1', jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Male Active User\",\n    \"email\": \"{{dynamicEmail}}\",\n    \"gender\": \"male\",\n    \"status\": \"active\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["users"]
+						}
+					}
+				},
+				{
+					"name": "6. Create User - Female Inactive",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var randomEmail = 'female_inactive_' + Date.now() + '@testmail.com';",
+									"pm.variables.set('dynamicEmail', randomEmail);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201 Created', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Gender is female', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.gender).to.eql('female');",
+									"});",
+									"",
+									"pm.test('Status is inactive', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.status).to.eql('inactive');",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"pm.environment.set('cleanupUserId2', jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Female Inactive User\",\n    \"email\": \"{{dynamicEmail}}\",\n    \"gender\": \"female\",\n    \"status\": \"inactive\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["users"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Post API",
+			"item": [
+				{
+					"name": "7. Create Post for User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201 Created', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Response has post id', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.be.a('number');",
+									"    pm.collectionVariables.set('postId', jsonData.id);",
+									"});",
+									"",
+									"pm.test('Title matches request', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.title).to.eql('Automated Test Post');",
+									"});",
+									"",
+									"pm.test('Body matches request', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.body).to.eql('This post was created by the Postman automated test collection.');",
+									"});",
+									"",
+									"pm.test('Response time is under 3 seconds', function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Automated Test Post\",\n    \"body\": \"This post was created by the Postman automated test collection.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId}}/posts",
+							"host": ["{{baseUrl}}"],
+							"path": ["users", "{{userId}}", "posts"]
+						}
+					}
+				},
+				{
+					"name": "8. Get Post by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Post ID matches', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.eql(parseInt(pm.collectionVariables.get('postId')));",
+									"});",
+									"",
+									"pm.test('Post has title and body', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.title).to.be.a('string');",
+									"    pm.expect(jsonData.body).to.be.a('string');",
+									"});",
+									"",
+									"pm.test('Response time is under 3 seconds', function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/posts/{{postId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["posts", "{{postId}}"]
+						}
+					}
+				},
+				{
+					"name": "9. Get All Posts",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response is an array', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});",
+									"",
+									"pm.test('Posts have required fields', function () {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.length > 0) {",
+									"        var post = jsonData[0];",
+									"        pm.expect(post).to.have.property('id');",
+									"        pm.expect(post).to.have.property('user_id');",
+									"        pm.expect(post).to.have.property('title');",
+									"        pm.expect(post).to.have.property('body');",
+									"    }",
+									"});",
+									"",
+									"pm.test('Response time is under 3 seconds', function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/posts",
+							"host": ["{{baseUrl}}"],
+							"path": ["posts"]
+						}
+					}
+				},
+				{
+					"name": "10. Search Posts by User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response is an array', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});",
+									"",
+									"pm.test('All posts belong to the user', function () {",
+									"    var jsonData = pm.response.json();",
+									"    var expectedUserId = parseInt(pm.collectionVariables.get('userId'));",
+									"    jsonData.forEach(function(post) {",
+									"        pm.expect(post.user_id).to.eql(expectedUserId);",
+									"    });",
+									"});",
+									"",
+									"pm.test('Response time is under 3 seconds', function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId}}/posts",
+							"host": ["{{baseUrl}}"],
+							"path": ["users", "{{userId}}", "posts"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Comment API",
+			"item": [
+				{
+					"name": "11. Create Comment on Post",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201 Created', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Response has comment id', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.be.a('number');",
+									"    pm.collectionVariables.set('commentId', jsonData.id);",
+									"});",
+									"",
+									"pm.test('Comment name matches', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.name).to.eql('Test Commenter');",
+									"});",
+									"",
+									"pm.test('Comment body matches', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.body).to.eql('This comment was created by the Postman automated collection.');",
+									"});",
+									"",
+									"pm.test('Response time is under 3 seconds', function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Test Commenter\",\n    \"email\": \"commenter@testmail.com\",\n    \"body\": \"This comment was created by the Postman automated collection.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/posts/{{postId}}/comments",
+							"host": ["{{baseUrl}}"],
+							"path": ["posts", "{{postId}}", "comments"]
+						}
+					}
+				},
+				{
+					"name": "12. Get Comments for Post",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response is an array', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});",
+									"",
+									"pm.test('Comments have required fields', function () {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.length > 0) {",
+									"        var comment = jsonData[0];",
+									"        pm.expect(comment).to.have.property('id');",
+									"        pm.expect(comment).to.have.property('post_id');",
+									"        pm.expect(comment).to.have.property('name');",
+									"        pm.expect(comment).to.have.property('email');",
+									"        pm.expect(comment).to.have.property('body');",
+									"    }",
+									"});",
+									"",
+									"pm.test('Response time is under 3 seconds', function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/posts/{{postId}}/comments",
+							"host": ["{{baseUrl}}"],
+							"path": ["posts", "{{postId}}", "comments"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Cleanup",
+			"item": [
+				{
+					"name": "13. Delete User (Cleanup)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 204 No Content', function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["users", "{{userId}}"]
+						}
+					}
+				},
+				{
+					"name": "14. Verify User Deleted",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 404 Not Found', function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["users", "{{userId}}"]
+						}
+					}
+				}
+			]
+		}
+	]
+}
