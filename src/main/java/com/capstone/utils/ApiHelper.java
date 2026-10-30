@@ -15,6 +15,7 @@ public class ApiHelper {
 
     public static Response get(String endpoint) {
         return RestAssured.given()
+                .header("Authorization", "Bearer " + ConfigReader.getToken())
                 .contentType(ContentType.JSON)
                 .when()
                 .get(endpoint);
@@ -22,6 +23,7 @@ public class ApiHelper {
 
     public static Response getById(String endpoint, int id) {
         return RestAssured.given()
+                .header("Authorization", "Bearer " + ConfigReader.getToken())
                 .contentType(ContentType.JSON)
                 .when()
                 .get(endpoint + "/" + id);
