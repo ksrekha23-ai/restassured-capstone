@@ -8,3 +8,7 @@ reports/
 .vscode/
 .DS_Store
 test-output/
+
+# Local environment configs with real tokens
+src/main/resources/dev.properties
+src/main/resources/uat.properties
